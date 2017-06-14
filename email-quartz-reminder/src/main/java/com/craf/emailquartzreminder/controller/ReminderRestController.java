@@ -1,13 +1,16 @@
 package com.craf.emailquartzreminder.controller;
 
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.craf.emailquartzreminder.QrtzSchedulerService;
 import com.craf.emailquartzreminder.entity.Reminder;
 import com.craf.emailquartzreminder.entity.Unit;
 
@@ -16,6 +19,8 @@ import com.craf.emailquartzreminder.entity.Unit;
 public class ReminderRestController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired QrtzSchedulerService service;
 	
 	@RequestMapping(value="/{userId}/{reminderId}", 
 			method=RequestMethod.GET, 
@@ -37,7 +42,8 @@ public class ReminderRestController {
 	}
 	
 	@RequestMapping(value="/{userId}", method= RequestMethod.POST)
-	public String schedule() {
+	public String schedule() throws SchedulerException {
+		service.schedule();
 		return "ok";
 	}
 	
