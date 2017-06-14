@@ -24,17 +24,22 @@ import com.craf.emailquartzreminder.job.SendEmailJob;
 import com.craf.emailquartzreminder.util.ReminderUtil;
 
 @Service
-public class QrtzSchedulerService {
+public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 
 	@Autowired SpringBeanJobFactory jobFactory;
 
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#schedule(java.lang.String, com.craf.emailquartzreminder.entity.Reminder)
+	 */
+	@Override
 	public String schedule(String userId, Reminder reminder) throws SchedulerException {
 
 		String jobId = JobKey.createUniqueName(userId);
 
 		JobDetail job = newJob()
+				.storeDurably(false)
+				.requestRecovery(true)
 				.ofType(SendEmailJob.class)
-				//.storeDurably()
 				.withIdentity(jobId, userId)
 				.withDescription(reminder.getEventName())
 				.usingJobData(new JobDataMap(ReminderUtil.convertEntityToMap(reminder)))
@@ -58,8 +63,34 @@ public class QrtzSchedulerService {
 
 		return jobId;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#unschedule(java.lang.String, java.lang.String)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public boolean unschedule(String userId, String reminderId) throws SchedulerException {
+		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+		for(String groupName : scheduler.getJobGroupNames()) {
+			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+				if(scheduler.getJobDetail(jobKey).getKey().getGroup().equalsIgnoreCase(userId) && 
+						scheduler.getJobDetail(jobKey).getKey().getName().equalsIgnoreCase(reminderId)) {
+					
+					List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);
+					
+					return triggers.isEmpty() ? scheduler.deleteJob(jobKey) : scheduler.unscheduleJob(triggers.get(0).getKey()) && scheduler.deleteJob(jobKey);
+					
+				}
+			}
+		}
+		return false;
+	}
 
-	public Reminder getAllReminder(String userId, String reminderId) throws SchedulerException {
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#getReminder(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public Reminder getReminder(String userId, String reminderId) throws SchedulerException {
 		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 		for(String groupName : scheduler.getJobGroupNames()) {
 			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
@@ -74,6 +105,10 @@ public class QrtzSchedulerService {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#getAllReminders(java.lang.String)
+	 */
+	@Override
 	public List<Reminder> getAllReminders(String userId) throws SchedulerException {
 		List<Reminder> reminderLst = new ArrayList<Reminder>();
 		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
@@ -88,6 +123,10 @@ public class QrtzSchedulerService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#getAllRemindersAllUsers()
+	 */
+	@Override
 	public List<Reminder> getAllRemindersAllUsers() throws SchedulerException {
 		List<Reminder> reminderLst = new ArrayList<Reminder>();
 		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
@@ -97,5 +136,14 @@ public class QrtzSchedulerService {
 			}
 		}
 		return reminderLst;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#updateReminder(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean updateReminder(String userId, String reminderId) throws SchedulerException {
+		//TODO
+		return false;
 	}
 }

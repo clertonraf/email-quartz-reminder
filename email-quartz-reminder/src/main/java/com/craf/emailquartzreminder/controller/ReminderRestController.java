@@ -3,8 +3,6 @@ package com.craf.emailquartzreminder.controller;
 import java.util.List;
 
 import org.quartz.SchedulerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,34 +15,19 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.craf.emailquartzreminder.entity.Reminder;
-import com.craf.emailquartzreminder.entity.Unit;
-import com.craf.emailquartzreminder.service.QrtzSchedulerService;
+import com.craf.emailquartzreminder.service.QrtzScheduleService;
 
 @RestController
 @RequestMapping("/reminders/v1")
 public class ReminderRestController {
 	
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	//private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	@Autowired QrtzSchedulerService service;
+	@Autowired QrtzScheduleService service;
 	
 	@RequestMapping(value="/{userId}/{reminderId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody Reminder getReminder(@PathVariable("userId") String userId,@PathVariable("reminderId") String reminderId) {
-		logger.debug("debugging");
-		
-		Reminder reminder = new Reminder();
-		reminder.setUnit(Unit.m);
-		reminder.setInterval(1);
-		reminder.setDay(13);
-		reminder.setMonth(6);
-		reminder.setYear(2017);
-		reminder.setHour(22);
-		reminder.setMinute(20);
-		reminder.setEventName("Event");
-		reminder.setEventLink("http://www.google.com");
-		reminder.setEmailDestination("clerton.filho@softplan.com.br");
-		
-		return reminder;
+	public @ResponseBody Reminder getReminder(@PathVariable("userId") String userId, @PathVariable("reminderId") String reminderId) throws SchedulerException {
+		return service.getReminder(userId, reminderId);
 	}
 	
 	@RequestMapping(value="/{userId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
@@ -59,12 +42,13 @@ public class ReminderRestController {
 	
 	@RequestMapping(value="/{userId}", method= RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public String schedule(@PathVariable("userId") String userId, @RequestBody Reminder reminder) throws Exception {
+	public @ResponseBody String schedule(@PathVariable("userId") String userId, @RequestBody Reminder reminder) throws SchedulerException{
 		return service.schedule(userId,reminder);
 	}
 	
-	@RequestMapping(value="/{userId}/{reminderId}", method= RequestMethod.DELETE)
-	public @ResponseBody String unschedule() {
-		return "ok";
+	@RequestMapping(value="/{userId}/{reminderId}", method= RequestMethod.DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public @ResponseBody boolean unschedule(@PathVariable("userId") String userId, @PathVariable("reminderId") String reminderId) throws SchedulerException {
+		return service.unschedule(userId, reminderId);
 	}
 }
