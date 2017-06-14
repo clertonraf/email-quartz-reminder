@@ -1,4 +1,4 @@
-package com.craf.emailquartzreminder;
+package com.craf.emailquartzreminder.service;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -10,7 +10,6 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
@@ -28,7 +27,7 @@ public class QrtzSchedulerService {
 		JobDetail job = newJob()
 				.ofType(SendEmailJob.class)
 				.storeDurably()
-				.withIdentity(JobKey.jobKey("Qrtz_Job_Detail"))
+				.withIdentity(JobKey.createUniqueName(userId), userId)
 				.withDescription("Invoke Sample Job service...")
 				.build();
 		
@@ -40,7 +39,6 @@ public class QrtzSchedulerService {
 											reminder.getMonth(), 
 											reminder.getYear()))
 				.forJob(job)
-				.withIdentity(TriggerKey.triggerKey("Qrtz_Trigger"))
 				.withDescription("Sample trigger")
 				.withSchedule(simpleSchedule().withMisfireHandlingInstructionFireNow())
 				.build();

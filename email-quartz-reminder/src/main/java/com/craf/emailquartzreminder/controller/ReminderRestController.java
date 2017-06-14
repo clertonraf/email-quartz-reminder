@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.craf.emailquartzreminder.QrtzSchedulerService;
 import com.craf.emailquartzreminder.entity.Reminder;
 import com.craf.emailquartzreminder.entity.Unit;
+import com.craf.emailquartzreminder.service.QrtzSchedulerService;
 
 @RestController
 @RequestMapping("/reminders/v1")
@@ -40,6 +40,7 @@ public class ReminderRestController {
 		reminder.setEventName("Event");
 		reminder.setEventLink("http://www.google.com");
 		reminder.setEmailDestination("clertonfilho@gmail.com");
+		
 		return reminder;
 	}
 	

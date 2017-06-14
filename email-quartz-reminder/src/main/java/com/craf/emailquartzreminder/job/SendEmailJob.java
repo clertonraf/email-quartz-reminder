@@ -10,8 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 
 public class SendEmailJob implements Job{
 
-	@Autowired
-    public JavaMailSender emailSender;
+	private @Autowired JavaMailSender emailSender;
 	
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
