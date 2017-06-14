@@ -4,7 +4,7 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import org.quartz.DateBuilder;
+import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -17,30 +17,31 @@ import org.springframework.stereotype.Service;
 
 import com.craf.emailquartzreminder.entity.Reminder;
 import com.craf.emailquartzreminder.job.SendEmailJob;
+import com.craf.emailquartzreminder.util.ReminderUtil;
 
 @Service
 public class QrtzSchedulerService {
 
 	@Autowired SpringBeanJobFactory jobFactory;
 	
-	public void schedule(String userId, Reminder reminder) throws SchedulerException {
+	public String schedule(String userId, Reminder reminder) throws SchedulerException {
+		
+		String jobId = JobKey.createUniqueName(userId);
+		
 		JobDetail job = newJob()
 				.ofType(SendEmailJob.class)
 				.storeDurably()
-				.withIdentity(JobKey.createUniqueName(userId), userId)
-				.withDescription("Invoke Sample Job service...")
+				.withIdentity(jobId, userId)
+				.withDescription(reminder.getEventName())
+				.usingJobData(new JobDataMap(ReminderUtil.convertEntityToMap(reminder)))
 				.build();
 		
 		Trigger trigger = newTrigger()
-				.startAt(DateBuilder.dateOf(reminder.getHour(), 
-											reminder.getMinute(), 
-											0, 
-											reminder.getDay(), 
-											reminder.getMonth(), 
-											reminder.getYear()))
+				.startAt(ReminderUtil.calculateTriggerDate(reminder))
 				.forJob(job)
-				.withDescription("Sample trigger")
+				.withDescription(reminder.getEventName())
 				.withSchedule(simpleSchedule().withMisfireHandlingInstructionFireNow())
+				.withIdentity(jobId, userId)
 				.build();
 		
 		StdSchedulerFactory factory = new StdSchedulerFactory();
@@ -49,6 +50,8 @@ public class QrtzSchedulerService {
 		scheduler.scheduleJob(job, trigger);
 		
 		scheduler.start();
+		
+		return jobId;
 	}
 	
 }
