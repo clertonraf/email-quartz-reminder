@@ -17,6 +17,7 @@ public class Reminder {
 	private String eventName;
 	private String eventLink;
 	private Unit unit;
+	private String userId;
 	
 	public String getReminderId() {
 		return reminderId;
@@ -84,12 +85,17 @@ public class Reminder {
 	public void setEventLink(String eventLink) {
 		this.eventLink = eventLink;
 	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 	@Override
 	public String toString() {
 		return "Reminder [reminderId=" + reminderId + ", hour=" + hour + ", minute=" + minute + ", day=" + day
-				+ ", month=" + month + ", year=" + year + ", interval=" + interval + ", emailDestination  =" + emailDestination + ", eventName="
-				+ eventName + ", eventLink=" + eventLink + ", unit=" + unit + "]";
-	}
-	
-	
+				+ ", month=" + month + ", year=" + year + ", interval=" + interval + ", emailDestination="
+				+ emailDestination + ", eventName=" + eventName + ", eventLink=" + eventLink + ", unit=" + unit
+				+ ", userId=" + userId + "]";
+	}	
 }

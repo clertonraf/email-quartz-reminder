@@ -1,5 +1,8 @@
 package com.craf.emailquartzreminder.controller;
 
+import java.util.List;
+
+import org.quartz.SchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,7 @@ public class ReminderRestController {
 	@Autowired QrtzSchedulerService service;
 	
 	@RequestMapping(value="/{userId}/{reminderId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody public Reminder getReminder() {
+	public @ResponseBody Reminder getReminder(@PathVariable("userId") String userId,@PathVariable("reminderId") String reminderId) {
 		logger.debug("debugging");
 		
 		Reminder reminder = new Reminder();
@@ -44,14 +47,24 @@ public class ReminderRestController {
 		return reminder;
 	}
 	
+	@RequestMapping(value="/{userId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<Reminder> getAllReminders(@PathVariable("userId") String userId) throws SchedulerException {
+		return service.getAllReminders(userId);
+	}
+	
+	@RequestMapping(value="/", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<Reminder> getAllRemindersAllUsers() throws SchedulerException {
+		return service.getAllRemindersAllUsers();
+	}
+	
 	@RequestMapping(value="/{userId}", method= RequestMethod.POST, produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	public @ResponseBody String schedule(@PathVariable("userId") String userId, @RequestBody Reminder reminder) throws Exception {
+	public String schedule(@PathVariable("userId") String userId, @RequestBody Reminder reminder) throws Exception {
 		return service.schedule(userId,reminder);
 	}
 	
 	@RequestMapping(value="/{userId}/{reminderId}", method= RequestMethod.DELETE)
-	public String unschedule() {
+	public @ResponseBody String unschedule() {
 		return "ok";
 	}
 }

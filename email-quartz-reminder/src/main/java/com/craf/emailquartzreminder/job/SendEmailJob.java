@@ -46,7 +46,7 @@ public class SendEmailJob implements Job{
 		}
 	}
 	
-	public String getContentFromTemplate(Map < String, Object > model) {
+	public String getContentFromTemplate(Map <String, Object> model) {
         StringBuffer content = new StringBuffer();
         try {
             content.append(FreeMarkerTemplateUtils
