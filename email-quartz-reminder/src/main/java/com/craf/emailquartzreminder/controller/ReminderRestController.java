@@ -21,8 +21,6 @@ import com.craf.emailquartzreminder.service.QrtzScheduleService;
 @RequestMapping("/reminders/v1")
 public class ReminderRestController {
 	
-	//private Logger logger = LoggerFactory.getLogger(this.getClass());
-	
 	@Autowired QrtzScheduleService service;
 	
 	@RequestMapping(value="/{userId}/{reminderId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
@@ -50,5 +48,11 @@ public class ReminderRestController {
 	@ResponseStatus(HttpStatus.OK)
 	public @ResponseBody boolean unschedule(@PathVariable("userId") String userId, @PathVariable("reminderId") String reminderId) throws SchedulerException {
 		return service.unschedule(userId, reminderId);
+	}
+	
+	@RequestMapping(value="/", method= RequestMethod.DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public @ResponseBody boolean unscheduleAll() throws SchedulerException {
+		return service.unscheduleAll();
 	}
 }

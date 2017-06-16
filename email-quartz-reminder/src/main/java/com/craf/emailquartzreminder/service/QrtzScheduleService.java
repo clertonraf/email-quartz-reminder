@@ -11,6 +11,8 @@ public interface QrtzScheduleService {
 	String schedule(String userId, Reminder reminder) throws SchedulerException;
 
 	boolean unschedule(String userId, String reminderId) throws SchedulerException;
+	
+	boolean unscheduleAll() throws SchedulerException;
 
 	Reminder getReminder(String userId, String reminderId) throws SchedulerException;
 
@@ -18,6 +20,6 @@ public interface QrtzScheduleService {
 
 	List<Reminder> getAllRemindersAllUsers() throws SchedulerException;
 
-	boolean updateReminder(String userId, String reminderId) throws SchedulerException;
+	boolean updateReminder(String userId, Reminder reminder) throws SchedulerException;
 
 }

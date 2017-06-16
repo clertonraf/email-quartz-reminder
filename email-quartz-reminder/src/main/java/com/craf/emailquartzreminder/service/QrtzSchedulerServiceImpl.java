@@ -28,9 +28,6 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 
 	@Autowired SpringBeanJobFactory jobFactory;
 
-	/* (non-Javadoc)
-	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#schedule(java.lang.String, com.craf.emailquartzreminder.entity.Reminder)
-	 */
 	@Override
 	public String schedule(String userId, Reminder reminder) throws SchedulerException {
 
@@ -64,9 +61,7 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 		return jobId;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#unschedule(java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean unschedule(String userId, String reminderId) throws SchedulerException {
@@ -86,9 +81,7 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#getReminder(java.lang.String, java.lang.String)
-	 */
+
 	@Override
 	public Reminder getReminder(String userId, String reminderId) throws SchedulerException {
 		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
@@ -123,9 +116,6 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#getAllRemindersAllUsers()
-	 */
 	@Override
 	public List<Reminder> getAllRemindersAllUsers() throws SchedulerException {
 		List<Reminder> reminderLst = new ArrayList<Reminder>();
@@ -137,13 +127,31 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 		}
 		return reminderLst;
 	}
-	
-	/* (non-Javadoc)
-	 * @see com.craf.emailquartzreminder.service.QrtzScheduleService#updateReminder(java.lang.String, java.lang.String)
-	 */
+
 	@Override
-	public boolean updateReminder(String userId, String reminderId) throws SchedulerException {
-		//TODO
+	public boolean updateReminder(String userId, Reminder reminder) throws SchedulerException {
+
+		if(reminder.getReminderId() == null || reminder.getReminderId().isEmpty()) {
+			this.schedule(userId, reminder);
+			return true;
+		}
+		
+		this.unschedule(userId, reminder.getReminderId());
+		this.schedule(userId, reminder);		
+		
+		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean unscheduleAll() throws SchedulerException {
+		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+		for(String groupName : scheduler.getJobGroupNames()) {
+			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {	
+					List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);					
+					return triggers.isEmpty() ? scheduler.deleteJob(jobKey) : scheduler.unscheduleJob(triggers.get(0).getKey()) && scheduler.deleteJob(jobKey);
+			}
+		}
 		return false;
 	}
 }
