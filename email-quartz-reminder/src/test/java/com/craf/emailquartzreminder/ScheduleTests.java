@@ -1,9 +1,9 @@
 package com.craf.emailquartzreminder;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,29 +21,21 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @WebAppConfiguration
-public class EmailQuartzReminderApplicationTests {
+public class ScheduleTests {
 
 	@Autowired private WebApplicationContext wac;
 	private MockMvc mockMvc;
 
 	@Before
-    public void setup () {
+    public void setup () throws Exception {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(this.wac);
         this.mockMvc = builder.build();
+        
+        this.mockMvc.perform(delete("/").contentType(MediaType.APPLICATION_JSON));
     }
 	
-//	@Test
-	public void test01_getReminder() throws Exception {
-		MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.get("/reminders/v1/1234/1");
-		
-		this.mockMvc.perform(builder)
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andExpect(jsonPath("$.hour", is(22)));
-	}
-	
-//	@Test
-	public void test02_schedule() throws Exception {
+	@Test
+	public void test01_schedule() throws Exception {
 		String content = "{\"day\": 14,"
 						+ "\"emailDestination\": \"clerton.filho@softplan.com.br\","
 						+ "\"eventLink\": \"http://www.google.com.br\","
@@ -54,7 +46,7 @@ public class EmailQuartzReminderApplicationTests {
 						+ "\"month\": 6,"
 						+ "\"reminderId\": null,"
 						+ "\"unit\": \"m\","
-						+ "\"year\": 2017}";
+						+ "\"year\": 2018}";
 		
 		MockHttpServletRequestBuilder builder =
                 MockMvcRequestBuilders.post("/reminders/v1/1234/")

@@ -78,7 +78,7 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 
 
@@ -145,11 +145,13 @@ public class QrtzSchedulerServiceImpl implements QrtzScheduleService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean unscheduleAll() throws SchedulerException {
+		System.out.println("QurtzSchedulerSericeImpl::unscheduleAll()");
 		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 		for(String groupName : scheduler.getJobGroupNames()) {
-			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {	
-					List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);					
-					return triggers.isEmpty() ? scheduler.deleteJob(jobKey) : scheduler.unscheduleJob(triggers.get(0).getKey()) && scheduler.deleteJob(jobKey);
+			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+				List<Trigger> triggers = (List<Trigger>) scheduler.getTriggersOfJob(jobKey);
+				System.out.println("QurtzSchedulerSericeImpl::unscheduleAll() - triggers.isEmpty()?"+triggers.isEmpty());
+				return triggers.isEmpty() ? scheduler.deleteJob(jobKey) : scheduler.unscheduleJob(triggers.get(0).getKey()) && scheduler.deleteJob(jobKey);
 			}
 		}
 		return false;

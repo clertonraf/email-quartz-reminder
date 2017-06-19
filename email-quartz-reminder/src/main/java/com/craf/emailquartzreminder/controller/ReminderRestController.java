@@ -3,6 +3,8 @@ package com.craf.emailquartzreminder.controller;
 import java.util.List;
 
 import org.quartz.SchedulerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +23,8 @@ import com.craf.emailquartzreminder.service.QrtzScheduleService;
 @RequestMapping("/reminders/v1")
 public class ReminderRestController {
 	
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired QrtzScheduleService service;
 	
 	@RequestMapping(value="/{userId}/{reminderId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
@@ -30,6 +34,7 @@ public class ReminderRestController {
 	
 	@RequestMapping(value="/{userId}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody List<Reminder> getAllReminders(@PathVariable("userId") String userId) throws SchedulerException {
+		log.debug("userId="+userId);
 		return service.getAllReminders(userId);
 	}
 	
@@ -53,6 +58,7 @@ public class ReminderRestController {
 	@RequestMapping(value="/", method= RequestMethod.DELETE, produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.OK)
 	public @ResponseBody boolean unscheduleAll() throws SchedulerException {
+		System.out.println("deleteAll");
 		return service.unscheduleAll();
 	}
 }
